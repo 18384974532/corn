@@ -31,6 +31,7 @@ chat 2 {
 joinroom 5 {
   request {
     pos 0 : integer
+    name 1 : string
   }
 }
 
@@ -62,6 +63,7 @@ createuser 6 {
   request {
     pos 0 : integer
     name 1 : string
+    uid 2 : integer
   }
 }
 

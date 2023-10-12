@@ -10,7 +10,11 @@ local send_request
 local CMD = {}
 local REQ = {}
 --local client_fd
+
 local client_fds = {}
+
+local USER_ID = 0
+local uids = {}
 
 function REQ:sayhello()
 	print("recv client sayhello: ", self.what)
@@ -31,10 +35,20 @@ function REQ:chat()
 	return {error_code = 0, msg = "i get it" }
 end
 
+local function get_user_id()
+  USER_ID = USER_ID + 1
+  local uid = USER_ID
+  print("get user id:", uid)
+  table.insert(uids, uid)
+  return uid
+end
+
 function REQ:joinroom()
   print("user join room")
   local pos = 0
-  broadcast(send_request("createuser", {pos = pos}))
+  local name = self.name
+  local unique_id = get_user_id()
+  broadcast(send_request("createuser", {pos = pos, name = name, uid = unique_id}))
 end
 
 function REQ:get()
