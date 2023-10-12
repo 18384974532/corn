@@ -37,7 +37,7 @@ joinroom 5 {
 
 playermove 7 {
   request {
-    name 0 : string
+    id 0 : string
     move_msg 1 : string
   }
 }
@@ -64,6 +64,13 @@ createuser 6 {
     pos 0 : integer
     name 1 : string
     uid 2 : integer
+  }
+}
+
+playermove 7 {
+  request {
+    id 0 : string
+    move_msg 1 : string
   }
 }
 

@@ -29,12 +29,6 @@ local function broadcast(pack)
 	end
 end
 
-function REQ:chat()
-	print("user send msg :", self.msg)
-	broadcast(send_request("chatInfo", {msg = self.msg}))
-	return {error_code = 0, msg = "i get it" }
-end
-
 local function get_user_id()
   USER_ID = USER_ID + 1
   local uid = USER_ID
@@ -49,6 +43,18 @@ function REQ:joinroom()
   local name = self.name
   local unique_id = get_user_id()
   broadcast(send_request("createuser", {pos = pos, name = name, uid = unique_id}))
+end
+
+--chat and playermove or other playercommand only need be retansport, the can be designed to a same function
+function REQ:chat()
+	print("user send msg :", self.msg)
+	broadcast(send_request("chatInfo", {msg = self.msg}))
+	return {error_code = 0, msg = "i get it" }
+end
+
+function REQ:playermove()
+  print("user move")
+  broadcast(send_request("playermove", {id = self.id, move_msg = self.move.msg}))
 end
 
 function REQ:get()
