@@ -1,0 +1,17 @@
+thread = 8
+logger = nil
+cpath = "../skynet/cservice/?.so"
+
+
+bootstrap = "snlua bootstrap"
+
+start = "main"
+harbor = 0
+
+lualoader = "../skynet/lualib/loader.lua"
+
+luaservice = "./src/service/?.lua;" .. "./src/service/?/init.lua;" .. "../skynet/service/?.lua;" .. "./src/service/?/?.lua;"
+
+lua_path = "./src/etc/?.lua;" .. "./src/lualib/?.lua;" .. "../skynet/lualib/?.lua;" .. "../skynet/lualib/?/init.lua;" .. "./lualib/?/?.lua;"
+
+lua_cpath = "../skynet/luaclib/?.so"
