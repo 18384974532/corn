@@ -20,7 +20,8 @@ sayhello 1 {
 
 chat 2 {
   request {
-      msg 0 : string
+      sender 0 : string
+      msg 1 : string
   }
   response {
     error_code 0 : integer

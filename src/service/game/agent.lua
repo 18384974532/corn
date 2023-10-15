@@ -99,6 +99,7 @@ skynet.register_protocol {
 --		assert(fd == client_fd)	-- You can use fd to reply message
 		skynet.ignoreret()	-- session is fd, don't call skynet.ret
 		skynet.trace()
+    --tag1 这里可以通过fd识别出来是哪个user发的请求，后续有用，未做
 		if type == "REQUEST" then
 			local ok, result  = pcall(request, ...)
 			if ok then
