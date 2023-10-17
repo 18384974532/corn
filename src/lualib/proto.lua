@@ -7,6 +7,11 @@ proto.c2s = sprotoparser.parse [[
 	type 0 : integer
 	session 1 : integer
 }
+.User {
+  uid 0 : integer
+  name 1 : string
+  pos 2 : *integer
+}
 
 sayhello 1 {
 	request {
@@ -31,11 +36,6 @@ chat 2 {
 
 joinroom 5 {
   request {
-    .User {
-      uid 0 : integer
-      name 1 : string
-      pos 2 : *integer
-    }
     user 0 : User
   }
 }
@@ -55,6 +55,12 @@ proto.s2c = sprotoparser.parse [[
 	session 1 : integer
 }
 
+.User {
+  uid 0 : integer
+  name 1 : string
+  pos 2 : *integer
+}
+
 heartbeat 3 {}
 
 chatInfo 4 {
@@ -66,11 +72,7 @@ chatInfo 4 {
 
 createuser 6 {
   request {
-    pos 0 : integer
-    name 1 : string
-    uid 2 : integer
-    posx 3 : integer
-    posz 4 : integer
+    user 0 : User
   }
 }
 

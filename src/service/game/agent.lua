@@ -51,13 +51,16 @@ end
 function REQ:joinroom(args)
   print("user join room")
   for _, user in pairs(users) do
-    print("user id :", user.unique_id, "name", user.name, user.posx, user.posz, self.fd)
-    send_player(send_request("createuser", {pos = pos, name = user.name, uid = user.uid, posx = user.posx, posz = user.posz}), self.fd)
+    print("user id :", user.unique_id, "name", user.name, self.fd)
+    send_player(send_request("createuser", {user = user}), self.fd)
   end
-  local user = {}
-  user.name = self.name
-  user.posx = self.posx
-  user.posz = self.posz
+  local user = self.user
+  print("user info", self.user.name)
+  if self.user.pos then
+    for k, v in pairs(self.user.pos) do
+        print("user info details", k, v)
+    end
+  end
   user.unique_id = self.fd
   print("get user id:", self.fd)
   table.insert(users, user)
@@ -66,7 +69,7 @@ function REQ:joinroom(args)
   local name = self.name
   local unique_id = self.fd
 
-  broadcast(send_request("createuser", {pos = pos, name = name, uid = unique_id, posx = self.posx, posz = self.posz}))
+  broadcast(send_request("createuser", {user = self.user}))
 end
 
 --chat and playermove or other playercommand only need be retansport, the can be designed to a same function
