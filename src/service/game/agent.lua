@@ -15,10 +15,16 @@ local client_fds = {}
 
 local USER_ID = 0
 local uids = {}
+local users = {}
 
 function REQ:sayhello()
 	print("recv client sayhello: ", self.what)
 	return {error_code = 0, msg = "i get it" }
+end
+
+local function send_package(pack, client_fd)
+	local package = string.pack(">s2", pack)
+	socket.write(client_fd, package)
 end
 
 local function broadcast(pack)
@@ -29,6 +35,11 @@ local function broadcast(pack)
 	end
 end
 
+local function send_player(pack, fd)
+  local package = string.pack(">s2", pack)
+  socket.write(fd, package)
+end
+
 local function get_user_id()
   USER_ID = USER_ID + 1
   local uid = USER_ID
@@ -37,18 +48,31 @@ local function get_user_id()
   return uid
 end
 
-function REQ:joinroom()
+function REQ:joinroom(args)
   print("user join room")
+  for _, user in pairs(users) do
+    print("user id :", user.unique_id, "name", user.name, user.posx, user.posz, self.fd)
+    send_player(send_request("createuser", {pos = pos, name = user.name, uid = user.uid, posx = user.posx, posz = user.posz}), self.fd)
+  end
+  local user = {}
+  user.name = self.name
+  user.posx = self.posx
+  user.posz = self.posz
+  user.unique_id = self.fd
+  print("get user id:", self.fd)
+  table.insert(users, user)
+
   local pos = 0
   local name = self.name
-  local unique_id = get_user_id()
-  broadcast(send_request("createuser", {pos = pos, name = name, uid = unique_id}))
+  local unique_id = self.fd
+
+  broadcast(send_request("createuser", {pos = pos, name = name, uid = unique_id, posx = self.posx, posz = self.posz}))
 end
 
 --chat and playermove or other playercommand only need be retansport, the can be designed to a same function
 function REQ:chat()
-	print("user send msg :", self.msg)
-	broadcast(send_request("chatInfo", {msg = self.msg}))
+	print("user send msg :", self.msg, self.sender)
+	broadcast(send_request("chatInfo", {msg = self.msg, sender = self.sender}))
 	return {error_code = 0, msg = "i get it" }
 end
 
@@ -76,17 +100,13 @@ function REQ:quit(client_fd)
 	skynet.call(WATCHDOG, "lua", "close", client_fd)
 end
 
-local function request(name, args, response)
+local function request(fd, name, args, response)
 	local f = assert(REQ[name])
+  args.fd = fd
 	local r = f(args)
 	if response then
 		return response(r)
 	end
-end
-
-local function send_package(pack, client_fd)
-	local package = string.pack(">s2", pack)
-	socket.write(client_fd, package)
 end
 
 skynet.register_protocol {
@@ -101,7 +121,7 @@ skynet.register_protocol {
 		skynet.trace()
     --tag1 这里可以通过fd识别出来是哪个user发的请求，后续有用，未做
 		if type == "REQUEST" then
-			local ok, result  = pcall(request, ...)
+			local ok, result  = pcall(request, fd, ...)
 			if ok then
 				if result then
 					send_package(result, fd)
@@ -130,8 +150,8 @@ function CMD.start(conf)
 		end
 	end)
 
-	table.insert(client_fds, fd)
---	client_fd = fd
+  table.insert(client_fds, fd)
+	--client_fd = fd
 	skynet.call(gate, "lua", "forward", fd)
 end
 
