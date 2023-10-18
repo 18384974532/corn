@@ -2,6 +2,7 @@ local skynet = require "skynet"
 local socket = require "skynet.socket"
 local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
+local game_player = require "player.player"
 
 local WATCHDOG
 local host
@@ -30,46 +31,46 @@ end
 local function broadcast(pack)
 	local package = string.pack(">s2", pack)
 	for _, client_fd in pairs(client_fds) do
-    print(client_fd)
+		print(client_fd)
 		socket.write(client_fd, package)
 	end
 end
 
 local function send_player(pack, fd)
-  local package = string.pack(">s2", pack)
-  socket.write(fd, package)
+	local package = string.pack(">s2", pack)
+	socket.write(fd, package)
 end
 
 local function get_user_id()
-  USER_ID = USER_ID + 1
-  local uid = USER_ID
-  print("get user id:", uid)
-  table.insert(uids, uid)
-  return uid
+	USER_ID = USER_ID + 1
+	local uid = USER_ID
+	print("get user id:", uid)
+	table.insert(uids, uid)
+	return uid
 end
 
 function REQ:joinroom(args)
-  print("user join room")
-  for _, user in pairs(users) do
-    print("user id :", user.unique_id, "name", user.name, self.fd)
-    send_player(send_request("createuser", {user = user}), self.fd)
-  end
-  local user = self.user
-  print("user info", self.user.name)
-  if self.user.pos then
-    for k, v in pairs(self.user.pos) do
-        print("user info details", k, v)
-    end
-  end
-  user.unique_id = self.fd
-  print("get user id:", self.fd)
-  table.insert(users, user)
+	print("user join room")
+	for _, user in pairs(users) do
+	print("user id :", user.unique_id, "name", user.name, self.fd)
+	send_player(send_request("createuser", {user = user}), self.fd)
+	end
+	local user = self.user
+	print("user info", self.user.name)
+	if self.user.pos then
+		for k, v in pairs(self.user.pos) do
+			print("user info details", k, v)
+		end
+	end
+	user.unique_id = self.fd
+	print("get user id:", self.fd)
+	table.insert(users, user)
 
-  local pos = 0
-  local name = self.name
-  local unique_id = self.fd
+	local pos = 0
+	local name = self.name
+	local unique_id = self.fd
 
-  broadcast(send_request("createuser", {user = self.user}))
+	broadcast(send_request("createuser", {user = self.user}))
 end
 
 --chat and playermove or other playercommand only need be retansport, the can be designed to a same function
@@ -80,8 +81,8 @@ function REQ:chat()
 end
 
 function REQ:playermove()
-  print("user move")
-  broadcast(send_request("playermove", {id = self.id, move_msg = self.move.msg}))
+	print("user move")
+	broadcast(send_request("playermove", {id = self.id, move_msg = self.move.msg}))
 end
 
 function REQ:get()
@@ -105,7 +106,10 @@ end
 
 local function request(fd, name, args, response)
 	local f = assert(REQ[name])
-  args.fd = fd
+	if not f then
+	f = game_player.REQ[name]
+	end
+	args.fd = fd
 	local r = f(args)
 	if response then
 		return response(r)
