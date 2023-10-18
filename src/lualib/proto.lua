@@ -47,6 +47,12 @@ playermove 7 {
   }
 }
 
+quitroom 9 {
+	request {
+		name 0 : string
+	}
+}
+
 ]]
 
 proto.s2c = sprotoparser.parse [[
@@ -81,6 +87,12 @@ playermove 7 {
     id 0 : string
     move_msg 1 : string
   }
+}
+
+deleteuser 8 {
+	request {
+		name 0 : string
+	}
 }
 
 ]]

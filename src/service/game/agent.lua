@@ -49,11 +49,25 @@ local function get_user_id()
 	return uid
 end
 
+function REQ:quitroom(args)
+	print("user quit room")
+	for index, user in pairs(users) do
+		if user.name == self.name then
+			table.remove(users, index)
+			table.remove(client_fds, index)
+			--这里必须保证只能在joinroom之后调用quitroom，不然client_fds和users就并不同步了
+			skynet.call(WATCHDOG, "lua", "close", self.fd)
+			break
+		end
+	end
+	broadcast(send_request("deleteuser", {name = self.name}))
+end
+
 function REQ:joinroom(args)
 	print("user join room")
 	for _, user in pairs(users) do
-	print("user id :", user.unique_id, "name", user.name, self.fd)
-	send_player(send_request("createuser", {user = user}), self.fd)
+		print("user id :", user.unique_id, "name", user.name, self.fd)
+		send_player(send_request("createuser", {user = user}), self.fd)
 	end
 	local user = self.user
 	print("user info", self.user.name)
@@ -107,7 +121,7 @@ end
 local function request(fd, name, args, response)
 	local f = assert(REQ[name])
 	if not f then
-	f = game_player.REQ[name]
+		f = game_player.REQ[name]
 	end
 	args.fd = fd
 	local r = f(args)
