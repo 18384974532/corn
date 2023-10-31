@@ -1,4 +1,5 @@
 local skynet = require "skynet"
+local define = require "util.define"
 
 local mod = {}
 mod.REQ = {}
@@ -15,6 +16,10 @@ function REQ.playerCommand(args)
 	if f then
 		local ret = f(args)
 	end
+end
+
+function REQ.playermove(args)
+	
 end
 
 mod.REQ = REQ

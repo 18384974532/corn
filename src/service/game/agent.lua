@@ -3,6 +3,7 @@ local socket = require "skynet.socket"
 local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
 local game_player = require "player.player"
+local define = require "util.define"
 
 local WATCHDOG
 local host
@@ -49,6 +50,21 @@ local function get_user_id()
 	return uid
 end
 
+function REQ:playeraction(args)
+	print("user send action cmd")
+	if self.action then
+		for _, v in pairs(self.action) do
+			print("action" .. v)
+		end
+	end
+	for index, user in pairs(users) do
+		if user.name ~= self.user.name then
+			print("send to" .. user.name .. "who send" .. self.user.name)
+			send_player(send_request("playeraction", {user = self.user, move_msg = self.move_msg, action = self.action}), user.unique_id)
+		end
+	end
+end
+
 function REQ:quitroom(args)
 	print("user quit room")
 	for index, user in pairs(users) do
@@ -92,11 +108,6 @@ function REQ:chat()
 	print("user send msg :", self.msg, self.sender)
 	broadcast(send_request("chatInfo", {msg = self.msg, sender = self.sender}))
 	return {error_code = 0, msg = "i get it" }
-end
-
-function REQ:playermove()
-	print("user move")
-	broadcast(send_request("playermove", {id = self.id, move_msg = self.move.msg}))
 end
 
 function REQ:get()

@@ -40,10 +40,11 @@ joinroom 5 {
   }
 }
 
-playermove 7 {
+playeraction 7 {
   request {
-    id 0 : string
-    move_msg 1 : string
+	user 0 : User
+    move_msg 1 : *integer
+	action 2 : *integer
   }
 }
 
@@ -82,10 +83,11 @@ createuser 6 {
   }
 }
 
-playermove 7 {
+playeraction 7 {
   request {
-    id 0 : string
-    move_msg 1 : string
+    user 0 : User
+    move_msg 1 : *integer
+	action 2 : *integer
   }
 }
 
